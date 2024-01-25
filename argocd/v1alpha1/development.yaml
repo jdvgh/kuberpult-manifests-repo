@@ -1,0 +1,51 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: development
+spec:
+  clusterResourceWhitelist:
+  - group: '*'
+    kind: ClusterSecretStore
+  - group: '*'
+    kind: ClusterIssuer
+  description: development
+  destinations:
+  - namespace: '*'
+    server: https://kubernetes.default.svc
+  sourceRepos:
+  - '*'
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  annotations:
+    argocd.argoproj.io/manifest-generate-paths: /environments/development/applications/app1-teamless/manifests
+    com.freiheit.kuberpult/application: app1-teamless
+    com.freiheit.kuberpult/environment: development
+    com.freiheit.kuberpult/team: ""
+    notifications.argoproj.io/subscribe.on-degraded.teams: ""
+    notifications.argoproj.io/subscribe.on-sync-failed.teams: ""
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+  labels:
+    com.freiheit.kuberpult/team: ""
+  name: development-app1-teamless
+spec:
+  destination:
+    namespace: '*'
+    server: https://kubernetes.default.svc
+  ignoreDifferences:
+  - group: apps
+    jsonPointers:
+    - /spec/replicas
+    kind: Deployment
+  project: development
+  source:
+    path: environments/development/applications/app1-teamless/manifests
+    repoURL: ssh://git@github.com/jdvgh/kuberpult-manifests-repo.git
+    targetRevision: main
+  syncPolicy:
+    automated:
+      allowEmpty: true
+      prune: true
+      selfHeal: true
