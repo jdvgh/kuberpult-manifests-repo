@@ -28,7 +28,7 @@
       }
     ]
   },
-  "environmentGroup": "staging1",
+  "environmentGroup": "staging2",
   "upstream": {
     "environment": "development2"
   }
